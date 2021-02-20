@@ -12,12 +12,14 @@
   예전에 @ResponseBody를 각 메소드마다 선언했던것을 한번에 사용할 수 있게 해준다
 * @GetMapping : HTTP Method인 Get 요청을 받을 수 있는 API를 만들어준다
 * Test클래스에서 `MockMvcRequestBuilders.get` 이 계속 import가 되지않았다.. 찾아보던 중 도구들의 버전 변경으로 수정해야 할 코드들이 많았다. 
-  저자 블로그에 나온대로 build.gradle을 고쳤지만 계속 안됨..<br>
-   __as-is__
+  저자 블로그에 나온대로 build.gradle을 고쳤지만 계속 안됨..
+  
+  
+__as-is__
 ```
 testImplementation('org.springframework.boot:spring-boot-starter-test')
 ```
-  __to-be__ <br>
+__to-be__ <br>
 ```
     testImplementation('org.springframework.boot:spring-boot-starter-test'){
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
