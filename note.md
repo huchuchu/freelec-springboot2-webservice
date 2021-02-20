@@ -30,24 +30,24 @@ __to-be__ <br>
 ```
    
   * @Runwith => @ExtendWith (SpringRunner => SpringExtension) : 
-   - 테스트를 진행할 때 JUnit에 내장된 실행자 외에 다른 실행자를 실행시킨다
-   - 여기서는 SpringExtension 이라는 스프링 실행자를 사용한다
-   - 즉, 스프링 부트 테스트와 JUnit 사이에 연결자 역할을 한다
+    - 테스트를 진행할 때 JUnit에 내장된 실행자 외에 다른 실행자를 실행시킨다
+    - 여기서는 SpringExtension 이라는 스프링 실행자를 사용한다
+    - 즉, 스프링 부트 테스트와 JUnit 사이에 연결자 역할을 한다
   * @WebMvcTest
-   - 선언시 @Controller, @CoontrollerAdvice등을 사용할 수 있다
-   - 단 @Service, @Conponetnt, @Repository는 사용불가
-   - 여기서는 컨트롤러만 사용하기때문에 선언한다
+    - 선언시 @Controller, @CoontrollerAdvice등을 사용할 수 있다
+    - 단 @Service, @Conponetnt, @Repository는 사용불가
+    - 여기서는 컨트롤러만 사용하기때문에 선언한다
   * @privateMockMvc mvc 
-   - 웹 API를 테스트할 때 사용한다
-   - 이 클래스를 통해 HTTP GET, POST등에 대한 API테스트를 할 수 있다
+    - 웹 API를 테스트할 때 사용한다
+    - 이 클래스를 통해 HTTP GET, POST등에 대한 API테스트를 할 수 있다
   * mvc.perform(get("/hello")) : Mockmvc를 통해 /hello 주소로 HTTP GET 요청을 함, 체이닝이 지원되어 여러 검증 기능을 이어서 선언 할 수 있다
-   - .andExpect(status().isOk()) : 
-    + mvc.perform의 결과를 검정한다
-    + HTTP Header의 Status를 검증한다 (흔히 알고있는 200, 404, 500등의 상태 검증)
-    + 여기서는 .isOk 즉 200인지 아닌지를 검증한다
-   - .andExpect(content().string(hello))
-    + 응답 본문의 내용을 검증한다
-    + Controller에서 "hello"를 리턴하기 때문에 이 값이 맞는지 검증한다
+    - .andExpect(status().isOk()) : 
+      + mvc.perform의 결과를 검정한다
+      + HTTP Header의 Status를 검증한다 (흔히 알고있는 200, 404, 500등의 상태 검증)
+      + 여기서는 .isOk 즉 200인지 아닌지를 검증한다
+    - .andExpect(content().string(hello))
+      + 응답 본문의 내용을 검증한다
+      + Controller에서 "hello"를 리턴하기 때문에 이 값이 맞는지 검증한다
 
   
   
