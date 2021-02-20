@@ -12,7 +12,7 @@
   예전에 @ResponseBody를 각 메소드마다 선언했던것을 한번에 사용할 수 있게 해준다
 * @GetMapping : HTTP Method인 Get 요청을 받을 수 있는 API를 만들어준다
 * Test클래스에서 `MockMvcRequestBuilders.get` 과 `MockMvcResultMatchers.content/status` 가 계속 import가 되지않았다.. 찾아보니 도구들의 버전 변경으로 수정해야 할 코드들이 많았다. 
-  저자 블로그에 나온대로 build.gradle을 고쳤지만 계속 안돼서 아래처럼 고쳤더니 import 
+  저자 블로그에 나온대로 build.gradle을 고쳤지만 계속 안돼서 아래처럼 고쳤더니 import 됐다!
   
   
 __as-is__
@@ -48,6 +48,11 @@ __to-be__ <br>
     - .andExpect(content().string(hello))
       + 응답 본문의 내용을 검증한다
       + Controller에서 "hello"를 리턴하기 때문에 이 값이 맞는지 검증한다
+      
+  ### Lombok
+   롬복: Getter, Setter, 기본생성자, toString등을 어노테이션으로 자동생성해준다
+   * @Getter : 선언된 모든 필드의 get메소드를 생성해준다
+   * @RequiredArgsContructor : 선언된 모든 final필드가 포함된 생성자를 생성해준다(final이 없느 필드생성자는 포함x)
 
   
   
