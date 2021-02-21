@@ -50,7 +50,7 @@ __to-be__ <br>
       + Controller에서 "hello"를 리턴하기 때문에 이 값이 맞는지 검증한다
       
    ### Lombok
-    롬복: Getter, Setter, 기본생성자, toString등을 어노테이션으로 자동생성해준다
+   * 롬복: Getter, Setter, 기본생성자, toString등을 어노테이션으로 자동생성해준다
    * @Getter : 선언된 모든 필드의 get메소드를 생성해준다
    * @RequiredArgsContructor : 선언된 모든 final필드가 포함된 생성자를 생성해준다(final이 없느 필드생성자는 포함x)
 
