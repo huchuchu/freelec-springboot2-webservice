@@ -49,12 +49,34 @@ __to-be__ <br>
       + 응답 본문의 내용을 검증한다
       + Controller에서 "hello"를 리턴하기 때문에 이 값이 맞는지 검증한다
       
+   ## 21/02/24
    ### Lombok
    * 롬복: Getter, Setter, 기본생성자, toString등을 어노테이션으로 자동생성해준다
    * @Getter : 선언된 모든 필드의 get메소드를 생성해준다
-   * @RequiredArgsContructor : 선언된 모든 final필드가 포함된 생성자를 생성해준다(final이 없느 필드생성자는 포함x)
+   * @RequiredArgsContructor : 선언된 모든 final필드가 포함된 생성자를 생성해준다(final이 없느 필드생성자는 포함x)<br>
+   __Junit5에서 assertThat() 사용하기__
+     ```
+        import org.assertj.core.api.Assertions; <-- 이걸 import 해야함
+        Assertion.assertThat()           
+     ```
+     안돼서 찾아보면 `hamcrest`를 import하라는데.. import자체가 안됐다..ㅜ
+   * @assertThat : 테스트 검증 라이브러리. 검증하고 싶은 대상을 메소드 인자로 받는다
+   * @isEqualTo : assertThat에 있는 값과 isEqualTo의 값을 비교해서 같을때만 성공
+   * @RequestParam : 외부에서 API로 넘긴 파라미터를 가져오는 어노테이션
 
-  
-  
-  
-  
+        ```
+        @RequestParam("name") String name 
+       => @RequestParam("name") 이름으로 넘긴 데이터를 String name에 저장한다
+       ```
+       ```
+        mvc.perform(get("/hello/dto")
+                                            .param("name", name)
+                                            .param("amount", String.valueOf(amount)))
+                    .andExpect(status().isOk())
+                    .andExpect( jsonPath("name", is(name)))
+                    .andExpect(jsonPath("amount", is(amount)));    
+    
+       ```
+   * param : API테스트 할 때 사용 될 요청 파라미터를 설정한다(값은 String만 가능)
+   * JSON 응답값을 필드별로 검증할 수 있는 메소드. $를 기준으로 필드명을 명시한다
+   * is : `import static org.hamcrest.Matchers.is`
