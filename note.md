@@ -74,9 +74,88 @@ __to-be__ <br>
                                             .param("amount", String.valueOf(amount)))
                     .andExpect(status().isOk())
                     .andExpect( jsonPath("name", is(name)))
-                    .andExpect(jsonPath("amount", is(amount)));    
-    
+                    .andExpect(jsonPath("amount", is(amount)));
        ```
    * param : API테스트 할 때 사용 될 요청 파라미터를 설정한다(값은 String만 가능)
    * JSON 응답값을 필드별로 검증할 수 있는 메소드. $를 기준으로 필드명을 명시한다
    * is : `import static org.hamcrest.Matchers.is`
+   
+   ## 21/02/25
+   ### JPA
+   JPA = 자바 표준 ORM(Object Realational Mapping) : 객체 매핑
+   MyBits, iBatis = SQL Mapper : 쿼리 매핑
+   RDBMS(관계형 데이터베이스) : 어떻게 데이터를 저장할지 에 초점
+   객체지향 프로그래밍언어: 기능과 속성을 한 곳에서 관리
+   ==> 패러다임 불일치
+   ```
+    JAP <- Hibernate <- Spring Data JPA
+   ```
+   Hibernate를 쓰지 않고 Spring Data JAP를 쓰는 이유
+   * 구현체 교체의 용이성 : Hibernate 외에 다른 구현체로 쉽게 교체하기 위함 (Sprign Data JPA에서 구현체 매핑 지원)
+   * 저장소 교체의 용이성 : 관계형 데이터메이스 외에 다른 저장소로 쉽게 교체하기 위함 (기본 CRUD 인터페이스가 같기때문에 저장소 교체가 용이하다)
+   
+   * 이 프로젝트에서 domain : 게시글, 댓글, 회원, 정산, 결제 등 소프트웨어에 대한 요구사항 혹은 문제영역
+   ```
+    @Getter
+    @NoArgsConstructor
+    @Entity
+    class Posts {
+    
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+    
+        @Column(length = 500, nullable = false)
+        private String title;
+    
+        @Column(columnDefinition = "TEXT", nullable = false)
+        private String content;
+    
+    
+        private String author;
+    
+        @Builder
+        public Posts (String title, String content, String author){
+            this.title = title;
+            this.content = content;
+            this.author = author;
+    }
+}
+   ```
+   * Posts 클래스는 실제 DB와 매칭될 클래스이며 Entity클래스라고도 한다. JPA를 사용하면 보통 실제 쿼리를 날리기보다 Entity클래스 수정을 통해 작업한다
+   * @Entity : 테이블과 링크 될 클래스임을 나타냄
+   * @Id : 해당 테이블의 PK필드를 나타냄
+   * @GeneratedValue : PK생성규칙. 스프링부트 2.0에서는 GenerationType.IDENTITY를 추가해야 auto_imcrement가 된다
+   * @Column : 테이블의 칼럼을 나타내며 굳이 선언하지않아도 해당 클래스의 필드는 모두 칼럼이 된다.<br>
+               기본값 외에 추가로 변경이 필요한 옵션이 있으면 사용함.<br>
+               문자열의 경우 VARCHAR(255)가 기본값인데 <br>
+                 - 사이즈를 500으로 늘리고싶거나 <br>
+                 - 타입을 TEXT로 변경하고싶거나 할 때 사용된다<br>
+   * NoArgsConstructor : 기본생성자 자동 추가
+   * Buider : 해당 클래스의 빌더 패턴 클래스를 생성. 생성자에 포함된 필드만 빌더에 포함
+   * Entity클래스에는 __setter 메소드를 만들지 않는다.__ 값 변경이 필요할 경우 그 목적과 의도를 명확히하는 메소드를 추가한다.<br>
+     ==> DB에 값을 채우는것은 기본적으로 생성자를 통하여 / 값 변경이 필요한경우는 public 메소드를 호출하여
+   * Builder 클래스를 사용하면 어느 필드에 어떤값을 채워야하는지 명확하게 인지할 수 있다.  
+   * repository : Dao 역할. 인터페이스로 생성 후 JpaRepository<Entity클래스, PK 타입>을 상속하면 기본적인 CRUD메소드가 생성된다.
+    <br> Entity클래스와 기본 Entity Repository는 함께 위치해야한다!
+   
+   * repositoryTest
+        - postRepository.save : 테이블 post에 insert/update 쿼리를 실행한다
+        - id값이 있으면 update, 있으면 insert
+   
+   * 어떻게 쿼리 날리는지 보는 방법: application.properties에 `spring.jpa.show_sql=true` 추가하기
+
+   ### 등록/수정/조회 API만들기
+   API를 만들기 위해서는 총 세개의 클래스가 필요하다
+```aidl
+    * Request 데이터를 받을 Dto
+    * API 요청을 받을 Controller
+    * 트랜잭션, 도메인 기능 간의 순서를 보장하는 Service
+```
+   * service 는 비즈니스로직을 처리하는것이 아니다. 트랜잭션, 도메인간 순서 보장의 역할만 한다
+
+     
+     
+   
+   
+   
