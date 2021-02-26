@@ -145,6 +145,7 @@ __to-be__ <br>
    
    * 어떻게 쿼리 날리는지 보는 방법: application.properties에 `spring.jpa.show_sql=true` 추가하기
 
+   ## 21/02/26
    ### 등록/수정/조회 API만들기
    API를 만들기 위해서는 총 세개의 클래스가 필요하다
 ```aidl
@@ -152,10 +153,27 @@ __to-be__ <br>
     * API 요청을 받을 Controller
     * 트랜잭션, 도메인 기능 간의 순서를 보장하는 Service
 ```
-   * service 는 비즈니스로직을 처리하는것이 아니다. 트랜잭션, 도메인간 순서 보장의 역할만 한다
-
+   * service : 비즈니스로직을 처리하는것이 아니다. 트랜잭션, 도메인간 순서 보장의 역할만 한다
+   * Dto(Data Transfer Object) : 계층 간에 데이터 교환을 위한 객체
+   * Domain Model : 도메인이라 불리는 개발 대상을 모든 사람이 동일한 관점에서 이해할 수 있고 공유할 수 있도록 단순화 시킨 것
+     <br>무조건 DB 테이블과 관계있어야하는 것은 아니고 VO처럼 값 객체들도 이영역에 해당한다
+     <br>비즈니스 로직 처리
+   
+   * 생성자를 직접 만들지 않고 @RequiredArgsConstructor(롬복 어노테이션) 사용이유: 클래스의 의존성 관계가 변경될 때마다 생성자 코드를 계속 수정하는 번거로움을 해결할 수 있다
+   
+   * Entity 클래스와 거의 유사한 형태임에도 Dto클래스를 추가로 생성했다. 절대로 __Entity 클래스를 Request/Response 클래스로 사용해선 안된다!!__
+     <br> Entity클래스는 DB와 맞닿은 핵심클래스이다. Entity를 기준으로 테이블이 생성되고, 스키마가 변경되기때문이다!
+     <br> View Layer와 DB Layer의 역할 분리를 철저하게 하는 게 좋다!
+     
+   * JPA테스트토 함께 하는경우네는 @WebMvcTest를 사용하지않고 @SpringBootTest와 TestRestTemplate를 사용한다
+   * [TestRestTemplate](https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/test/web/client/TestRestTemplate.html)
+     <br>[Static import](https://docs.oracle.com/javase/8/docs/technotes/guides/language/static-import.html) 
+     <br>[ResponseEntity](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/http/ResponseEntity.html)
+   
+   * update 처리할 때 : 쿼리를 날리는 부분이 없는데 처리된다. 이것은 __JPA의 영속성 컨텍스트__ 때문이다. 
+     <br>__영속성 컨텍스트__ : 엔티티를 영구 저장하는 환경.(JPA의 핵심내용은 엔티티가 영속성 컨텍스트에 포함되어 있냐 아니냐로 갈린다)
+     <br> JPA의 엔티티 매니저(Spring Data JPA의 기본옵션)가 활성화된 상태로 __트랜잭션 안에서 DB데이터를 가져오면__ 데이터는 영속성 컨텍스트가 유지된 상태이다
+     <br> 이 상태에서 해당 데이터의 값을 변경하면 __트랜잭션이 끝나는 시점에 해당 테이블에 변경분을 반영__한다.
+     <br> 즉 Entity 객체의 값만 변경하면 별도로 UPDATE 쿼리를 날릴 필요가 없다는 것!!! <-- 더티 체킹(dirty checking)이라고 한다
      
      
-   
-   
-   
