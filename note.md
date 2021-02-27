@@ -26,7 +26,6 @@ __to-be__ <br>
     }
     testImplementation('org.springframework.restdocs:spring-restdocs-mockmvc')
     testImplementation('org.junit.jupiter:junit-jupiter-api')
-    testRuntime('org.junit.jupiter:junit-jupiter-engine')
 ```
    
   * @Runwith => @ExtendWith (SpringRunner => SpringExtension) : 
@@ -176,4 +175,34 @@ __to-be__ <br>
      <br> 이 상태에서 해당 데이터의 값을 변경하면 __트랜잭션이 끝나는 시점에 해당 테이블에 변경분을 반영__한다.
      <br> 즉 Entity 객체의 값만 변경하면 별도로 UPDATE 쿼리를 날릴 필요가 없다는 것!!! <-- 더티 체킹(dirty checking)이라고 한다
      
-     
+   ### H2 DB에 연결
+     책에서 나온대로 접속하면 H2 보안이슈때문에 연결이 안된다. h2버전을 낮춰줌
+     <br>build.gradle에서 `com.h2database:h2:1.4.197` 로 설정변경. 근데 접속해도 POSTS 테이블이 안보임!
+     <br>그래서 applicaton.properties 에서 아래 설정을 추가해줌
+   
+   ```aidl
+        spring.h2.console.enabled=true
+        spring.datasource.hikari.jdbc-url=jdbc:h2:mem:testdb;MODE=MYSQL
+        spring.datasource.driverClassName=org.h2.Driver
+        spring.datasource.username=sa
+        spring.datasource.password=
+        spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+   ```
+   * 왜인지는 모르겠는데 
+    `spring.datasource.url=jdbc:h2:mem:testdb` 이렇게 하면 POSTS 테이블이 안붙고
+    <br>`spring.datasource.hikari.jdbc-url=jdbc:h2:mem:testdb;MODE=MYSQL` 이렇게 MYSQL까지 같이 설정해주니까 붙었다
+   * 테스트에서 create table을 못하는 이슈발생...
+    `spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5InnoDBDialect`
+    <br> 로 변경해줌
+    <br> https://github.com/jojoldu/freelec-springboot2-webservice/issues/67 
+   ### JPA Auditing으로 생성시간/수정시간/ 자동화하기
+   * __Locla Date__ , __LoclaDate Time__ 을 사용
+   * 보통 entity에는 해당 데이터의 생성시간과 수정시간을 포함한다. 반복적인 코드가 여러군데 들어가는데 이것을 JPA Auditing를 사용하여 해결!
+   * BaseTimeEntity 클래스는 모든 Entity클래스의 상위 클래스가 되어 Entity들의 createDate, modifiedDate를 __자동으로 관리하는 역할을 한다__
+   * @MappedSuperclass : JPA Entity 클래스들이 BaseTimeEntity를 상속할 경우 필드들(createDate, modifiedDate)도 칼럼으로 인신하도록한다
+   * @EntityListeners(AuditingEntityListener.class) :  BaseTimeEntity클래스에 Auditing기능을 포함시킨다
+   * @CreateDate : Entity가 생성되어 저장될 때 시간이 자동 저장된다
+   * @LastModifiedDate : 조회한 Entity값을 변경할 때 시간이 자동저장된다
+   * JPA Auditing 어노테이션들을 모두 활성화 할 수 있도록 Application클래스에 `@EnableJpaAuditing` 을 추가해준다
+    
+ 

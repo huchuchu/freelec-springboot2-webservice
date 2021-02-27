@@ -19,7 +19,7 @@ public class PostsApiController {
     }
 
     //수정or삭제
-    @PutMapping("/api/v1/posts/{id}")
+    @PostMapping("/api/v1/posts/{id}")
     public Long update(@PathVariable Long id ,@RequestBody PostsSaveRequestDto requestDto){
         return postsService.update(id,requestDto);
     }
