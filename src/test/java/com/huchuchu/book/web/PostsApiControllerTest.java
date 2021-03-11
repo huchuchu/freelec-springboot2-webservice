@@ -77,6 +77,7 @@ public class PostsApiControllerTest {
                 .build());
 
 
+
         Long updateId = savePosts.getId();
         String expectedTitle = "title2";
         String expectedContent = "content2";
@@ -86,13 +87,15 @@ public class PostsApiControllerTest {
                 .content(expectedContent)
                 .build();
 
+
+
         String url = "http://localhost:"+port+"/api/v1/posts/"+updateId;
 
         HttpEntity<PostsUpdateRequestDto> requestEntity = new HttpEntity<>(requestDto);
 
         //when
         ResponseEntity<Long> responseEntity = restTemplate.
-                            exchange(url, HttpMethod.PUT, requestEntity, Long.class);
+                            exchange(url, HttpMethod.POST, requestEntity, Long.class);
 
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -101,6 +104,8 @@ public class PostsApiControllerTest {
         List<Posts> all = postsRepository.findAll();
         assertThat(all.get(0).getTitle()).isEqualTo(expectedTitle);
         assertThat(all.get(0).getContent()).isEqualTo(expectedContent);
+
+
 
 
     }

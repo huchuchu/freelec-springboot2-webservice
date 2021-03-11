@@ -147,7 +147,7 @@ __to-be__ <br>
    ## 21/02/26
    ### 등록/수정/조회 API만들기
    API를 만들기 위해서는 총 세개의 클래스가 필요하다
-```aidl
+```
     * Request 데이터를 받을 Dto
     * API 요청을 받을 Controller
     * 트랜잭션, 도메인 기능 간의 순서를 보장하는 Service
@@ -180,7 +180,7 @@ __to-be__ <br>
      <br>build.gradle에서 `com.h2database:h2:1.4.197` 로 설정변경. 근데 접속해도 POSTS 테이블이 안보임!
      <br>그래서 applicaton.properties 에서 아래 설정을 추가해줌
    
-   ```aidl
+   ```
         spring.h2.console.enabled=true
         spring.datasource.hikari.jdbc-url=jdbc:h2:mem:testdb;MODE=MYSQL
         spring.datasource.driverClassName=org.h2.Driver
@@ -204,5 +204,32 @@ __to-be__ <br>
    * @CreateDate : Entity가 생성되어 저장될 때 시간이 자동 저장된다
    * @LastModifiedDate : 조회한 Entity값을 변경할 때 시간이 자동저장된다
    * JPA Auditing 어노테이션들을 모두 활성화 할 수 있도록 Application클래스에 `@EnableJpaAuditing` 을 추가해준다
+
+   ### 2021/03/09
+   ### 머스테치로 화면 구성하기
+   * point : 서버 템플릿 엔진과 클라인언트 템플릿 엔진의 차이. JSP가 아니라 머스테치를 이용한 화면개발
+    1. 템플릿엔진 : 지정된 템플릿 양식과 데이터가 합쳐져 HTML문서를 출력하는 소프트웨어
+    <br>2. 서버 템플릿엔진을 이용한 화면생성은 서버에서 JAVA코드를 문자열로 만든 뒤 이 문자열을 HTML로 변환하여 브라우저로 전달한다.
+    <br>3. 자바스크립트는 브라우저 위에서 작동한다. 즉 브라우저에서 작동될때는 서버 템플릿의 영역이 아니어서 제어할 수 없다
+    <br>4. Vue.js나 React.js를 이용한 SPA(Single Page Application)는 브라우저에서 화면을 생성한다. 즉 __서버에서 이미 코드가 벗어난 경우!__
+     따라서 서버에서는 Json 혹은 XML형식의 데이터만 절달하고 클라이언트에서 조립한다
+     -  리액트나 뷰와 같은 자바스크립트 프레임워크에서 서버 사이드 렌더링(Server Side Rending)을 지원하기도한다
+     <br> 5.자바스크립트 프레임워크의 화면 생성 방식을 서버에서 실행.__ V8 엔진라이브러리를 지원하기 때문. 스프링프트에서는 Nashorn, J2V8이 있다
     
  
+   * 머스테치 : 수많은 언어를 지원하는 가장 심플한 템플릿엔진 
+   * 머스테치의 기본위치 :`src/main/resources/templates` 이다. 이 위치에 머스테치 파일을 두면 스프링부트에서 알아서 자동로딩한다
+   * 머스테치 스타터가 있기때문에 controller에서 맵핑할 때 src/main/resources/templates 경로와 머스테치 확장자는 생략해도 된다.
+   * css는 header에 두고 js는 body 하단에 두어 화면을 빠르게 불러올 수 있게한다
+   * index.js를 만들 때 var main = {...} 코드를 선언함. index.js에도 sava function이 있고 다른 js에도 save function이 있다고 가정할경우!
+    <br> 브라우저의 스코프는 __공용공간__ 으로 쓰이기때문에 나중에 로딩된 js의 svae가 먼저 로딩된 js의 function을 덮어쓴다
+    <br> 여러 사람이 참여하는 프로젝트에서는 중복된 함수 이름이 자주 발생할 수 있다. 모든 function의 이름을 확인하여 만들 수 없기때문에 index.js
+     만의 유효범위를 만들어서 사용한다. 
+    <br>var main이란 객체를 만들어 해당 객체에서 필요한 모든 function을 선언한다. 이렇게하면 main객체 안에서만 function이 유효하기때문에 다른 JS와
+     겹칠 위헙이 사라진다
+   * `<script src="/js/app/index.js"></script>`
+    <br> footer에 추가할 때 index.js 의 경로를 /js/app/index.js 로 지정해준다
+    <br> 스프링부트는 기본적으로 src/main/resources/static에 위치한 자바스크립트, CSS, 이미지 등 정적 파일들은 URL에서 / 로 설정된다
+     
+   
+       
