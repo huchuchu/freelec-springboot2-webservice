@@ -61,6 +61,12 @@ dependencies {
     testImplementation('org.junit.jupiter:junit-jupiter-api')
 //    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.1.0')
 
+    //Spring Security
+    implementation('org.springframework.boot:spring-boot-starter-oauth2-client')
+    implementation('org.springframework.session:spring-session-jdbc')
+    testImplementation("org.springframework.security:spring-security-test")
+
+
 
 
 

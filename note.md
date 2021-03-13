@@ -130,8 +130,8 @@ __to-be__ <br>
                문자열의 경우 VARCHAR(255)가 기본값인데 <br>
                  - 사이즈를 500으로 늘리고싶거나 <br>
                  - 타입을 TEXT로 변경하고싶거나 할 때 사용된다<br>
-   * NoArgsConstructor : 기본생성자 자동 추가
-   * Buider : 해당 클래스의 빌더 패턴 클래스를 생성. 생성자에 포함된 필드만 빌더에 포함
+   * @NoArgsConstructor : 기본생성자 자동 추가
+   * @Buider : 해당 클래스의 빌더 패턴 클래스를 생성. 생성자에 포함된 필드만 빌더에 포함
    * Entity클래스에는 __setter 메소드를 만들지 않는다.__ 값 변경이 필요할 경우 그 목적과 의도를 명확히하는 메소드를 추가한다.<br>
      ==> DB에 값을 채우는것은 기본적으로 생성자를 통하여 / 값 변경이 필요한경우는 public 메소드를 호출하여
    * Builder 클래스를 사용하면 어느 필드에 어떤값을 채워야하는지 명확하게 인지할 수 있다.  
@@ -231,5 +231,122 @@ __to-be__ <br>
     <br> footer에 추가할 때 index.js 의 경로를 /js/app/index.js 로 지정해준다
     <br> 스프링부트는 기본적으로 src/main/resources/static에 위치한 자바스크립트, CSS, 이미지 등 정적 파일들은 URL에서 / 로 설정된다
      
-   
-       
+
+   ### 21/03/13
+   ### Spring Security login
+   * 스프링부트에서는 properties의 이름을 application-xxx.properties로 만들면 xxx라는 이름의 profile이 생성되어 이를 통해 관리할 수 있다.
+     즉 __profile=xxx__ 라는 식으로 호출하면 __해당 properties__ 의 설정을 가져올 수 있다.
+     <br> 해당 프로젝트에서는 스프링부트 기본 설정파일인 application.properties에서 application-auth.properties를 포함하도록 구성한다.
+   * 구글 로그인을 위한 클라이언트 id와 클라이언트 비밀번호는 공유되면 안되기때문에 .gitignore에 추가해준다.  
+   * @Enumerated(EnumType.STRING) : 
+    JPA로 데이터베이스로 저장할 때 Enum 값을 어떤 형태로 저장할지 결정한다.
+     <br> 기본적인 형태는 int형 숫자가 저장된다. 숫자로 저장되면 데이터베이스로 확인할 때 그 값이 무슨 코드를 의미하는지 알 수 없다
+     <br> 그래서 문자열(EnumType.STRING)로 저장될 수 있도록 선언한다
+   *스프링 시큐리티에서는 권한 코드에 항상 `ROEL_`이 있어야한다
+   * findByEmail : 소셜 로그인으로 반환되는 값 중 email을 통해 이미 생성된 사용자인지 처음 가입하는 사용자인지 판단한다
+
+    ```
+    @RequiredArgsConstructor
+    @EnableWebSecurity
+    public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    
+        private final CustomOAuth2UserService customOAuth2UserService;
+    
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                    .csrf().disable()
+                    .headers().frameOptions().disable()
+                    .and()
+                        .authorizeRequests()
+                        .antMatchers("/", "/css/**","/images/**","/js/**","/h2-console/**").permitAll()
+                        .antMatchers("/api/v1/**").hasRole(Role.USER.name())
+                        .anyRequest().authenticated()
+                    .and()
+                        .logout()
+                            .logoutSuccessUrl("/")
+                    .and()
+                        .oauth2Login()
+                            .userInfoEndpoint()
+                                .userService(customOAuth2UserService);
+        }
+    }
+    
+    ```
+   * @EnableWebSecurity : Spring Security 설정들을 활성화시켜줌
+   * csrf().disable().headers().frameOptions().disable() : h2를 사용하기위해 해당 옵션을 disable처리
+   * authorizeRequests()
+    <br> URL별 권한관리를 하는 시작점
+    <br> authorizeRequests가 선언되어야 andMatchers옵션을 사용할 수 있다
+   * andMatchers()
+    <br> 권한 관리 대상을 지정하는 옵션
+    <br> URL, HTTP 메소드별로 관리가 가능하다
+    <br> `("/", "/css/**","/images/**","/js/**","/h2-console/**")` 은 .permitAll()을 통해 전체 열람권한을 주었다
+    <br> `("/api/v1/**")`주소를 가진 API는 USER권한을 가진 사람만 가능하도록 지정
+   * anyRequest() 
+    <br> 설정된 값 이외의 URL
+    <br> authenticated()를 추가하여 나머지 URL들은 모두 인증된 사용자들에게만 허용
+    <br> 인증된 사용자 = 로그인한 사용자
+   * userInfoEndpoint() : OAuth2 로그인 성공 이후 사용자 정보를 가져올 때 설정 담당
+   * userService() 
+    <br> 소셜 로그인 성공시 후속조치를 진행할 UserService 인터페이스의 구현체를 등록한다
+    <br> 리소스 서버(즉, 소셜 서비스들)에서 사용자 정보를 가져온 상태에서 추가로 진행하고자하는 기능을 명시할 수 있다
+    ```
+     public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+
+    private final UserRepository userRepository;
+    private final HttpSession httpSession;
+
+
+    @Override
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+
+        OAuth2UserService<OAuth2UserRequest, OAuth2User > delegate = new DefaultOAuth2UserService();
+        OAuth2User oAuth2User = delegate.loadUser(userRequest);
+
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+
+        String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
+                .getUserInfoEndpoint().getUserNameAttributeName();
+
+        OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
+
+        User user = saveOrUpdate(attributes);
+
+        httpSession.setAttribute("user", new SessionUser(user));
+
+        return new DefaultOAuth2User(
+                Collections.singleton(new SimpleGrantedAuthority(user.getRoleKey())),
+                attributes.getAttributes(),
+                attributes.getNameAttributeKey()
+        );
+    }
+
+    private User saveOrUpdate(OAuthAttributes attributes) {
+
+        User user = userRepository.findByEmail(attributes.getEmail())
+                .map(entity -> entity.update(attributes.getName(), attributes.getPicture()))
+                .orElse(attributes.toEntity());
+
+        return userRepository.save(user);
+
+        }
+    } 
+
+    ``` 
+
+   * registrationId : 현재 로그인 진행중인 서비스 구분 값
+   * userNameAttributeName
+    <br> OAuth2 로그인 진행시 키가 되는 필드값. primary key와 같은 의미. 
+    <br> 구글의 경우 기본적으로 코드를 지원하지만 네이버 카카오등은 지원x. 구글의 기본코드는 "sub"이다
+    <br> 구글과 네이버 로그인 동시지원시 사용된다
+   * OAuthAttributes : OAuth2UserService를 통해 가져온 OAuth2User의 attribute를 담을 클래스
+   * SessionUser : 세션에 사용자 정보를 저장하기위한 DTO 클래스
+   * saveOrUpdate : 구글 사용자 정보가 업데이트되었을 경우를 대비하여 update 기능도 함께 구현.
+    <br> 사용자의 이름이나 프로필사진이 변경되면 User 엔티티에도 반영된다
+   *  OAuthAttributes.of : OAuth2User에서 반환하는 사용자 정보는 Map이기때문에 값 하나하나를 변환해야한다
+   * toEntity 
+     <br> User 엔티티를 생성한다
+     <br> OAuthAttribute에서 엔티티를 생성하는 시점은 처음 가입할 때 이다. 가입할 때 기본권한을 GUEST로 주기 위해서 role 빌더값에는 Role.GUEST를 사용
+     
+     
