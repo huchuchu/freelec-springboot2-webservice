@@ -205,7 +205,7 @@ __to-be__ <br>
    * @LastModifiedDate : 조회한 Entity값을 변경할 때 시간이 자동저장된다
    * JPA Auditing 어노테이션들을 모두 활성화 할 수 있도록 Application클래스에 `@EnableJpaAuditing` 을 추가해준다
 
-   ### 2021/03/09
+   ## v 2021/03/09
    ### 머스테치로 화면 구성하기
    * point : 서버 템플릿 엔진과 클라인언트 템플릿 엔진의 차이. JSP가 아니라 머스테치를 이용한 화면개발
     1. 템플릿엔진 : 지정된 템플릿 양식과 데이터가 합쳐져 HTML문서를 출력하는 소프트웨어
@@ -232,7 +232,7 @@ __to-be__ <br>
     <br> 스프링부트는 기본적으로 src/main/resources/static에 위치한 자바스크립트, CSS, 이미지 등 정적 파일들은 URL에서 / 로 설정된다
      
 
-   ### 21/03/13
+   ## 21/03/13
    ### Spring Security login
    * 스프링부트에서는 properties의 이름을 application-xxx.properties로 만들면 xxx라는 이름의 profile이 생성되어 이를 통해 관리할 수 있다.
      즉 __profile=xxx__ 라는 식으로 호출하면 __해당 properties__ 의 설정을 가져올 수 있다.
@@ -403,7 +403,7 @@ __to-be__ <br>
    * WebMvcConfugurer 인터페이스 구현
    * HandlerMethodArgumentResolver 는 항상 WebMvcConfugurer의 addArgumentResolvers()를 통해 추가해야한다
 
-   --4. IndexController 수정__
+   __4. IndexController 수정__
 
 __as-is__
 ```aidl
@@ -416,6 +416,30 @@ __to-be__
    * 기존에(User)httpSession.getAttribute("user")로 가져오던 세션 정보값이 개선되었다.
    * 이제는 어느 컨트롤러든지 @LoginUser만 사용하면 세션정보를 가져올 수 있게 되었다
 
+### 세션 저장소로 데이터베이스 사용하기
+*  지금은 서비스를 내렸다 올리면 로그인이 풀린다 -> 세션이 내장 톰캣 메모리에 저장되기때문.
+<br> 기본적으로 세션은 실행되는 WAS의 메모리에서 저장되고 호출된다. 메모리에 저장되다보니 내장 톰캣처럼 애플리케이션 실행 시 실행되는 구조에서는 항상 초기화된다.
+<br> 즉 __배포할 때마다 톰캣이 재시작 되는 것이다__
+<br> 또한 2대 이상의 서버에서 서비스하고있다면 __톰캣마다 세션 동기화__ 설정을 해야한다. 그래도 실제 현업에서는 세션 저장소에대해 다음 세가지 중 한가지를 선택한다
+   - (1) 톰캣세션을 사용한다
+     + 일반적으로 별다른 설정을 하지 않을 때 기본적으로 선택되는 방식이다
+     + 톰캣(WAS)에 세션이 저장되기 때문에 2대 이상의 WAS가 구동되는 환경에서는 톰캣들 간의 세션 공유를 위한 추가 설정이 필요하다
+   - (2) MySQL 과 같은 데이터베이스를 세션 저장소로 사용한다
+     + 여러 WAS간의 공용 세션을 사용할 수 있는 가장 쉬운 방법이다
+     + 많은 설정이 필요없지만, 결국 로그인 요청마다 DB IO가 발생하여 성능상 이슈가 발생 할 수 있다
+     + 보통 로그인 요청이 많이 없는 백오피스, 사내 시스템 용도에서 많이 사용한다
+   - (3) Redis, Memcached와 같은 메모리 DB를 세션저장소로 사용한다
+     + B2C 서빕스에서 가장 많이 사용하는 방식이다
+     + 실제 서비스로 사용하기 위해서는 Embedded Redis와 같은 방식이 아닌 외부 메모리 서버가 필요하다
+* build.gradle 에 라이브러리 추가 `implementation('org.springframework.session:spring-session-jdbc')`
+* application.properties에 추가 `spring.session.store-type = jdbc`   
+  서비스 올리고 로그인 후 h2-console에 접속해보면 세션을 위한 테이블 2개가 생성되어있다(SPRING_SESSION, SPRING_SESSION_ATTRIBUTE)
+  <br> JPA로 인해 세션테이블이 자동생성되었음!
+* 현재는 H2기반이기때문에 서비스를 내리면 세션이 풀리지만 후에는 RDS로 변경 예정
+
+### 네이버로그인
+
+  
 
 
 
