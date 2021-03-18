@@ -69,14 +69,14 @@ __to-be__ <br>
        ```
        ```
         mvc.perform(get("/hello/dto")
-                                            .param("name", name)
-                                            .param("amount", String.valueOf(amount)))
+                    .param("name", name)
+                    .param("amount", String.valueOf(amount)))
                     .andExpect(status().isOk())
                     .andExpect( jsonPath("name", is(name)))
                     .andExpect(jsonPath("amount", is(amount)));
        ```
    * param : API테스트 할 때 사용 될 요청 파라미터를 설정한다(값은 String만 가능)
-   * JSON 응답값을 필드별로 검증할 수 있는 메소드. $를 기준으로 필드명을 명시한다
+   * JSON 응답값을 필드별로 검증할 수 있는 메소드를 기준으로 필드명을 명시한다
    * is : `import static org.hamcrest.Matchers.is`
    
    ## 21/02/25
@@ -245,7 +245,7 @@ __to-be__ <br>
    *스프링 시큐리티에서는 권한 코드에 항상 `ROEL_`이 있어야한다
    * findByEmail : 소셜 로그인으로 반환되는 값 중 email을 통해 이미 생성된 사용자인지 처음 가입하는 사용자인지 판단한다
 
-    ```
+```
     @RequiredArgsConstructor
     @EnableWebSecurity
     public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -271,8 +271,7 @@ __to-be__ <br>
                                 .userService(customOAuth2UserService);
         }
     }
-    
-    ```
+```
    * @EnableWebSecurity : Spring Security 설정들을 활성화시켜줌
    * csrf().disable().headers().frameOptions().disable() : h2를 사용하기위해 해당 옵션을 disable처리
    * authorizeRequests()
@@ -291,7 +290,7 @@ __to-be__ <br>
    * userService() 
     <br> 소셜 로그인 성공시 후속조치를 진행할 UserService 인터페이스의 구현체를 등록한다
     <br> 리소스 서버(즉, 소셜 서비스들)에서 사용자 정보를 가져온 상태에서 추가로 진행하고자하는 기능을 명시할 수 있다
-    ```
+```
      public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final UserRepository userRepository;
@@ -333,7 +332,7 @@ __to-be__ <br>
         }
     } 
 
-    ``` 
+``` 
 
    * registrationId : 현재 로그인 진행중인 서비스 구분 값
    * userNameAttributeName
@@ -348,5 +347,83 @@ __to-be__ <br>
    * toEntity 
      <br> User 엔티티를 생성한다
      <br> OAuthAttribute에서 엔티티를 생성하는 시점은 처음 가입할 때 이다. 가입할 때 기본권한을 GUEST로 주기 위해서 role 빌더값에는 Role.GUEST를 사용
+   * 로그인 후 세션을 처리하는 SessionUser를 만든 이유
+    <br> : User 클래스에 직렬화 코드를 넣으면 직렬화 대상에 자식들까지 포함되기때문에 성능이슈, 부수효과가 발생할 확률이 높다.
+    <br>   따라서 직렬화 기능을 가진 세션 Dto를 하나 추가로 만드는것이 이후 유지보수 때 많은 도움이 된다.
+
+    
+```
+    {{#userName}}
+    {{/userName}}
+    
+    {{^userName}}    
+    {{/userName}}
+
+```
+
+   * {{#userName}} : 머스테치는 if문을 제공하지않음. true/false 만 판단
+    <br> 따라서 머스테치에서는 항상 최종값을 넘겨줘야함. index.mustache에서도 userName이 있다면 userName을 노출시키도록 구성
+   * {{^userName}} : 해당값이 존재하지않는 경우 ^ 를 사용
+   * "/logout" : 스프링 시큐리티에서 기본적으로 제공하는 로그아웃 URL. SecurityConfig에서 수정 가능. 별도의 컨트롤러 생성할 필요x
+   * "/oauth2/authorization/google" : 스피링시큐리티에서 기본적으로 제공하는 로그인 URL. 별도의 컨트롤러 생성할 필요x
+
+   * 권한이 필요한 경우 session에서 계속 사용자의 정보를 받아와야한다
+    ```
+     httpSession.getAttribute("user"); 
+    ```
+   <br> 같은 코드가 반복되다보면 추 후 수정할 때 하나하나 찾아가며 수정해야하기때문에 유지보수하기 힘들다.
+   <br> 메소드 인자로 세션값을 바로 받을 수 있게 변경해보자
      
+   __1. LoginUser 어노테이션 클래스 생성__  
+
+   * @Target(ElementType.PARAMETER)
+     + 이 어노테이션이 생성될 수 있는 위치를 지정한다
+     + PARAMETER로 지정했으니 메소드의 파라마터로 선언된 객체에서만 사용할 수 있다
+     + 이 외에도 클래스 선언문에 쓸 수 있는 TYPE등이 있다
+   * @interface
+     + 이 파일을 어노테이션 클래스로 지정한다
+     + LonginUser라는 이름을 가진 어노테이션이 생성되었다고 보면 된다
+   
+   __2. LoginUserArgumentResolver 클래스 생성__
+
+   * HandlerMethodArgumentResolver 인터페이스를 구현한 클래스
+     + 조건에 맞는 경우 메소드가 있다면 HandlerMethodArgumentResolver의 구현체가 지정한 값으로 해당 메소드의 파라미터로 넘길 수 있다
      
+   * suportParameter()
+     + 컨트롤러 메서드의 특정 파라미터를 지원하는지 판단한다
+     + 여기서는 파라미터에 @LoginUser 어노테이션이 붙어있고, 파라미터 클래스타입이 SessionUser.class인 경우 true를 반환한다
+    
+   * resolveArgument()
+      + 파라미터에 전달할 객체 생성
+      + 여기에서는 세션객체를 가져온다
+    
+   __3. WebConfig 생성__
+
+   * 생성된 LoginUserArgumentResolver가 스프링에서 인식될 수 있게하기위함
+   * WebMvcConfugurer 인터페이스 구현
+   * HandlerMethodArgumentResolver 는 항상 WebMvcConfugurer의 addArgumentResolvers()를 통해 추가해야한다
+
+   --4. IndexController 수정__
+
+__as-is__
+```aidl
+SessionUser user = (SessionUser) httpSession.getAttribute("user");
+```
+__to-be__
+```aidl
+@LoginUser SessionUser user
+```
+   * 기존에(User)httpSession.getAttribute("user")로 가져오던 세션 정보값이 개선되었다.
+   * 이제는 어느 컨트롤러든지 @LoginUser만 사용하면 세션정보를 가져올 수 있게 되었다
+
+
+
+
+
+        
+    
+    
+   
+
+
+
