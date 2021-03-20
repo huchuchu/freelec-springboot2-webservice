@@ -65,7 +65,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-oauth2-client')
     //session DB에 저장
     implementation('org.springframework.session:spring-session-jdbc')
-
+    // spring security 설정 후 임의의 설정값 넣기 위해
     testImplementation("org.springframework.security:spring-security-test")
 
 

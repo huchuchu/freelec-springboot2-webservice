@@ -358,7 +358,6 @@ __to-be__ <br>
     
     {{^userName}}    
     {{/userName}}
-
 ```
 
    * {{#userName}} : 머스테치는 if문을 제공하지않음. true/false 만 판단
@@ -438,6 +437,63 @@ __to-be__
 * 현재는 H2기반이기때문에 서비스를 내리면 세션이 풀리지만 후에는 RDS로 변경 예정
 
 ### 네이버로그인
+* 네이버는 스프링시큐리티를 공식적으로 지원하지않기때문에 common-OAuth2Provider에서 해주던 값들도 전부 수동입력해야한다
+* 스프링 시큐리티에서는 하위필드를 명시할 수 없기때문에 최상위필드들만 user_name으로 지정할 수 있다
+<br> 네이버의 응닶값 최상위 필드는 resultCode, message, response이다
+
+### 테스트에 시큐리티 적용하기
+* 기존에는 API를 호출할 수 있어 테스트코드역시 바로 API를 호출하도록 구성하였다
+<br> 하지만 시큐리티 옵션이 활성화되면서 인증된 사용자만 API를 호출할 수 있다. 따라서 테스트 코드마다 인증한 사용자가 호출한 것 처럼 작동하도록 수정해야한다
+
+* 전체테스트 하는 방법 
+<br> gradle탭 -> Tasks -> verification -> test 수행
+* 책에서는 전체테스트 돌리면 롬복테스트 제외 다른 테스트는 다 실패로 뜨는데 나는 4개만 실패로 뜬다..뭐지-_-
+
+![뭐지](https://user-images.githubusercontent.com/58330668/111737103-553c9a00-88c2-11eb-8910-6b251bd4cdbc.PNG)
+
+(1) 첫번째 실패 테스트인 "hello_가리턴된다"의 메세지를 보면 " No qualifying bean of type 'com.huchuchu.book.config.auth.CustomOAuth2UserService'"
+라는 메세지가 등장한다.
+이것은 CustomOAuth2UserService를 생성하는데 필요한 소셜 로그인 관련 설정값들이 없기때문에 발생한다
+<br> application-oauth.properties에 설정값들을 추가했지만 test에서 인식하지 못하는 이유는 src/main환경과 src/test 환경의 차이 때문이다.
+<br> 다만, src/main/resources/application.properties가 테스트코드를 수행할 때도 적용되는 이유는  test에 application.proterties가 없으면
+그대로 가져오기 때문! 하지만 자동으로 가져오는 범위는 application.properties까지 이다. 
+<br> 따라서 application-oauth.properites는 test파일에 없다고 가져오는 파일이 아니다
+<br> 이 문제를 해결하기위해 테스트 환경을 위한 application.properties를 만들어야한다.
+<br> 실제 구글 연동까지 진행할 것은 아니기때문에 임의의 설정값을 등록한다
+<br> application.properties 작성 전 후 4개 테스트 통과 4개 테스트 실패로 결과가 동일했다...
+<br><br>
+
+![에러2](https://user-images.githubusercontent.com/58330668/111738148-2fb09000-88c4-11eb-9a76-a98e2bd61af0.PNG)
+(2)Posts_등록된다() 테스트 로그를 보면 응답 결과로 200(정상응답) Status Code를 원했는데 결과는 302(리다이렉션응답)Status Code가 와서 실패했다
+<br> 이것은 스프링 시큐리티 설정 때문에 인증되지 않은 사용자의 요청은 이동 시키기 때문이다. 임의로 인증된 사용자를 추가하여 APL테스트만 해볼 수 있다
+<br> spring-security-test를 build.gradle에 추가한다
+*  @WithMockUser(roles"USER")
+    - 인증된 모의(가짜) 사용자를 만들어서 사용한다
+    - roles에 권한을 추가할 수 있다
+    - 즉, 이 어노테이션으로 인해 ROLE_USER권한을 가진 사용자가 API를 요청하는 것과 동일한 효과를 가지게 된다
+    - @WithMockUser 어노테이션은 MockMvc에서만 작동한다
+* @BeforeEach : 매번 테스트가 시작되기 전에 MockMvc 인스턴스를 생성한다
+* mvc.perform
+    - 생성된 MockMvc를 통해 API를 테스트한다
+    - 본문(Body) 영역은 문자열로 표현하기 위해 ObjectMapper를 통해 문자열 JSON으로 변환한다
+
+![에러3](https://user-images.githubusercontent.com/58330668/111856360-7d350780-896d-11eb-8bb9-948a1e1ddd3f.PNG)
+(3) Hello가_리턴된다 테스트를 확인해보면 첫번째와 동일한 메시지인 " No qualifying bean of type 'com.huchuchu.book.config.auth.CustomOAuth2UserService'" 이다
+<br> HelloControllerTest는 @WebMvcTest를 사용한다. application.properties로 스프링 시큐리티 설정은 작동했지만 @WebMvcTest는 CustomOauth2UserService를 스캔하지않는다
+<br> @WebMvcTest는 WebSecurityConfigAdapter, WebMvcConfigurer를 비롯한 @ControllerAdvice, @Controller를 읽는다
+<br> 즉 @Repository, @Service, @Component는 스캔대상이 아니다. 따라서 SecurityConfig는 읽었지만, SecurityConfig를 생성하기위해 필요한
+CustomOauth2UserService는 읽을 수 없기때문에 에러가 발생했다.
+<br> 이 문제를 해결하기 위해선 스캔대상에서 SecurityConfig를 제거한다.
+<br> @WebMvcTest에서 excludeFilter 설정해주고 @WithMockUSer(roles="USER") 설정 후 테스트 돌리면
+
+![재밌네정말](https://user-images.githubusercontent.com/58330668/111856785-82478600-8970-11eb-8c19-0a91b105847c.PNG)
+(4) 새로운 에러 발생^^! "java.lang.IllegalArgumentException: JPA metamodel must not be empty!"
+<br> 이 에러는 @EnableJpaAuditing로 인해 발생한다. @EnableJpaAuditing를 사용하기위해선 최소 하나의 @Entity클래스가 필요하지만 
+@WebMvcTest에서는 당연히 없다!
+<br> @EnableJpaAuditing와 @SpringBootAllication이 같이 있다보니 @WebMvcTest에서도 스캔함 -> 둘을 분리해주자!
+<br> config 패키지에 JapConfig 클래스를 생성해준다
+
+
 
   
 
