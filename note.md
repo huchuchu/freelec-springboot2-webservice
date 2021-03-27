@@ -205,7 +205,7 @@ __to-be__ <br>
    * @LastModifiedDate : 조회한 Entity값을 변경할 때 시간이 자동저장된다
    * JPA Auditing 어노테이션들을 모두 활성화 할 수 있도록 Application클래스에 `@EnableJpaAuditing` 을 추가해준다
 
-   ## v 2021/03/09
+   ## 2021/03/09
    ### 머스테치로 화면 구성하기
    * point : 서버 템플릿 엔진과 클라인언트 템플릿 엔진의 차이. JSP가 아니라 머스테치를 이용한 화면개발
     1. 템플릿엔진 : 지정된 템플릿 양식과 데이터가 합쳐져 HTML문서를 출력하는 소프트웨어
@@ -464,7 +464,7 @@ __to-be__
 <br><br>
 
 ![에러2](https://user-images.githubusercontent.com/58330668/111738148-2fb09000-88c4-11eb-9a76-a98e2bd61af0.PNG)
-(2)Posts_등록된다() 테스트 로그를 보면 응답 결과로 200(정상응답) Status Code를 원했는데 결과는 302(리다이렉션응답)Status Code가 와서 실패했다
+<br> (2)Posts_등록된다() 테스트 로그를 보면 응답 결과로 200(정상응답) Status Code를 원했는데 결과는 302(리다이렉션응답)Status Code가 와서 실패했다
 <br> 이것은 스프링 시큐리티 설정 때문에 인증되지 않은 사용자의 요청은 이동 시키기 때문이다. 임의로 인증된 사용자를 추가하여 APL테스트만 해볼 수 있다
 <br> spring-security-test를 build.gradle에 추가한다
 *  @WithMockUser(roles"USER")
@@ -478,7 +478,7 @@ __to-be__
     - 본문(Body) 영역은 문자열로 표현하기 위해 ObjectMapper를 통해 문자열 JSON으로 변환한다
 
 ![에러3](https://user-images.githubusercontent.com/58330668/111856360-7d350780-896d-11eb-8bb9-948a1e1ddd3f.PNG)
-(3) Hello가_리턴된다 테스트를 확인해보면 첫번째와 동일한 메시지인 " No qualifying bean of type 'com.huchuchu.book.config.auth.CustomOAuth2UserService'" 이다
+(3) Hello가_리턴된다 테스트를 확인해보면 첫번째와 동일한 메시지인 " No qualifying bean of type '''com.huchuchu.book.config.auth.CustomOAuth2UserService'''" 이다
 <br> HelloControllerTest는 @WebMvcTest를 사용한다. application.properties로 스프링 시큐리티 설정은 작동했지만 @WebMvcTest는 CustomOauth2UserService를 스캔하지않는다
 <br> @WebMvcTest는 WebSecurityConfigAdapter, WebMvcConfigurer를 비롯한 @ControllerAdvice, @Controller를 읽는다
 <br> 즉 @Repository, @Service, @Component는 스캔대상이 아니다. 따라서 SecurityConfig는 읽었지만, SecurityConfig를 생성하기위해 필요한
@@ -493,17 +493,37 @@ CustomOauth2UserService는 읽을 수 없기때문에 에러가 발생했다.
 <br> @EnableJpaAuditing와 @SpringBootAllication이 같이 있다보니 @WebMvcTest에서도 스캔함 -> 둘을 분리해주자!
 <br> config 패키지에 JapConfig 클래스를 생성해준다
 
+## 21/03/20
+### AWS 서버 환경을 만들어보자 - AWS EC2
 
+외부에서 본인이 만든 서비스에 접근하려면 24시간 작동하는 서버가 필요하다. 
+<br> (1) 집에 PC를 24시간 구동시킨다
+<br> (2) 호스팅서비스(Cafe 24, 코리아호스팅)을 이용한다
+<br> (3) 클라우드서비스(AWS, AZURE, GCP)을 이용한다
 
+* 클라우드 서비스 : 인터넷(클라우드)을 통해 서버, 스토리지, 데이터베이스, 네트워크, 소프트웨어, 모니터링등의 컴퓨팅 서비스를 제공하는 것
+* 클라우드 종류
+  - (1) Infrastructure as a Service(IaaS, 아이아스, 이에스)
+    + 기존 물리 장비를 미들웨어와 함께 묶어둔 추상화 서비스
+    + 가상머신, 스토리지, 네트워크, 운영체제 등의 IT 인프라를 대여해주는 서비스
+    + AWS의 EC2, S3 등
+  - (2) Platform as a Service (PaaS, 파스) 
+    + IaaS에서 한번 더 추상화 한 서비스 -> 한번 더 추상화했기 때문에 많은 기능이 자동화 되어있다
+    + AWS의 Beanstalk(빈스톡), Heroku(헤로쿠) 등
+  - (3) Software as a Service(SaaS, 사스) 
+    + 소프트웨어 서비스
+    + 구글 드라이브, 드립박스 등
+ 
+* EC2(Elastic Computer Cloud) : AWS에서 제공하는 성능, 용량등을 유동적으로 사용할 수 있는 서버
+* 리전 : AWS의 서비스가 구동될 지역. AWS는 도시별로 클라우드 센터를 지어 해당 센터에서 구축된 가상머신들을 사용할 수 있다.
+* AMI(Amazom Machine Image, 아마존 머신 이미지) : EC2 인스턴스를 시작하는데 필요한 정보를 이미지로 만들어 둔 것,
+인스턴스라는 가상머신에 운영체제등을 설치할 수 있게 구워 넣은 이미지
+* EC2 인스턴스 생성 후 해야하는 설정
+  - (1) JAVA8 설치
+  - (2) 타임존 변경 : 기본 서버의 시간은 미국시간대이기때문에 한국시간으로 변경
+  - (3) 호스트네임 변경 : 현재 접속한 서버의 별명 등록(IP로 구분하기 어려움)
+****
+### AWS에 데이터베이스 환경을 만들어보자 -AWS RDS
+
+* RDS(Relational Database Service) : AWS에서 지원하는 클라우드 기반 관계형 데이터베이스. 
   
-
-
-
-
-        
-    
-    
-   
-
-
-
