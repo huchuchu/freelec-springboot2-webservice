@@ -515,13 +515,6 @@ CustomOauth2UserService는 읽을 수 없기때문에 에러가 발생했다.
     + 구글 드라이브, 드립박스 등
 
 ### [AWS 서버 환경]() 
+### [AWS RDS]()
 
-
-
-
-
-
-### AWS에 데이터베이스 환경을 만들어보자 -AWS RDS
-
-* RDS(Relational Database Service) : AWS에서 지원하는 클라우드 기반 관계형 데이터베이스. 
   
