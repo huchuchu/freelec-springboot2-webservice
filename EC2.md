@@ -80,7 +80,7 @@ VPC와 서브넷등은 AWS 서비스들의 네트워크 환경을 구성하는 �
 3) putty에 접속 설정을 등록한다
 <br>
 ![파일_000](https://user-images.githubusercontent.com/58330668/112713242-99114e00-8f17-11eb-8345-2e3a2c4a705c.png)
-    
+     
     + HostName : username@public_IP를 등록한다. Amazon Linux는 ec2-user가 username이기때문에 ec2-user@EIP 주소를 등록하면 된다
     + PORT : SSH 접속 포트인 22를 등록한다
     + Connect type : SSH를 등록한다

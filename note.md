@@ -533,7 +533,9 @@ CustomOauth2UserService는 읽을 수 없기때문에 에러가 발생했다.
 패스워드까지 입력하면 EC2에서 RDS로 접속되는것을 확인 할 수 있다
 
 ### EC2 서버에 프로젝트를 배포
-1) 깃허브에서 코드를 받아올 수 있도록 EC2에 깃 설치
-```
-    sudo yum install git
-```
+1) 깃허브에서 코드를 받아올 수 있도록 EC2에 깃 설치 `sudo yum install git`
+2) 설치 확인 `git --version`
+3) git clone으로 프로젝트를 저장할 디렉토리 생성 `mkdir ~/app && mkdir ~/app/step1`
+    - ~ : 현재 계정의 홈 디렉토리
+4) 생성된 디렉토리로 이동 `cd ~/app/step1`
+5) 깃 클론 진행 `git clone 레포지토리 web주소`
