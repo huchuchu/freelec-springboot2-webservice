@@ -514,7 +514,26 @@ CustomOauth2UserService는 읽을 수 없기때문에 에러가 발생했다.
     + 소프트웨어 서비스
     + 구글 드라이브, 드립박스 등
 
-### [AWS 서버 환경]() 
-### [AWS RDS]()
+### [AWS 서버 환경](https://github.com/huchuchu/springBoot/blob/master/EC2.md) 
+### [AWS RDS](https://github.com/huchuchu/springBoot/blob/master/RDS.md)
 
-  
+## 21/04/01
+### EC2에서 RDS에서 접근확인
+
+1) putty 접속
+2) MySQL 접근 테스트를 위해 MySQL CLI를 설치
+(실제 EC2의 MySQL을 설치하는 것이 아닌 명령어 라인만 쓰기위한 설치)
+```
+    sudo yum install mywql
+```
+3) 설치 후 RDS에 접속
+```
+    mysql -u 계정 -p -h HOST주소
+```
+패스워드까지 입력하면 EC2에서 RDS로 접속되는것을 확인 할 수 있다
+
+### EC2 서버에 프로젝트를 배포
+1) 깃허브에서 코드를 받아올 수 있도록 EC2에 깃 설치
+```
+    sudo yum install git
+```

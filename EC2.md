@@ -85,7 +85,7 @@ VPC와 서브넷등은 AWS 서비스들의 네트워크 환경을 구성하는 �
     + PORT : SSH 접속 포트인 22를 등록한다
     + Connect type : SSH를 등록한다
  <br>   
-![파일_001](https://user-images.githubusercontent.com/58330668/112713435-5308ba00-8f18-11eb-92a8-1c15fa72e384.png)
+![putty2](https://user-images.githubusercontent.com/58330668/113257554-bbcfa800-9305-11eb-996b-00dc53c02d09.png)
     
     + 카테고리에서 Connection/SSH/Auth를 클릭한다
     + 생성한 ppk파일을 선택하여 불러온다
@@ -115,14 +115,3 @@ VPC와 서브넷등은 AWS 서비스들의 네트워크 환경을 구성하는 �
     * 변경 후 재접속하면 hostname이 변경된것을 확인할 수 있다
     * `curl 등록한 호스트이름` : 잘못 등록되었으면 찾을 수 없는 주소라는 에러 발생/ 잘 등록되었다면 80 포트로 접근이 안된다는 에러 발생
     <br> 이것은 앚기 80포트로 실행된 서비스가 없음을 의미한다 -> 즉, curl 호스트 이름으로 실행은 잘 되었음을 의미
-    
-   
-
-
-            
-    
-     
-    
-
-
-  

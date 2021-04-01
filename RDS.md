@@ -49,6 +49,38 @@ RDS를 처음 생성하면 다음 설정을 필수로 해야한다
         오픈전 이기때문에 즉시적용한다
 
 5) 로컬PC에서 RDS 접속하기
+    1. 로컬PC에서 접근하기 위해 RDS의 보안 그룹에 1. 현재 내 PC의 IP, 2. EC2의 보안그룹 아이디를 인바운드로 추가한다
+        - 인바운드 규칙 유형에서 MYSQL/Aurora를 선택하면 자동으로 3306포트가 선택된다
+        - EC2의 경우 이후에 2대 3대가 될 수도 있는데, 매번 IP를 등록할 수는 없으니 보편적으로 이렇게 보안그룹 간에 연동을 진행한다
+    2. RDS와 개인PC, EC2 간의 연동 설정을 모두 되었다!
+    
+6) Database 플러그인 설치
+    1. 인텔리제이에 Database 플러그인을 설치한다. Database Navigator(* 최신버전에서는 서비스를 제공하고있지않아 인텔리제이 1.4이하 버전을 사용해야한다)
+    2. 플러그인 설치 후 인텔리제이 재시작
+    3. ctrl + Shift + a (Action 검색) 으로 Database Browser 검색 -> 왼쪽 사이드바에 DB Browser탭이 노출된다
+    4. +버튼을 클릭 후 MYSQL을 클릭한다
+    5. RDS 접속 정보를 등록. HOST에는 RDS 엔트포인트를 넣어주면된다
+    6. ping test하고 apply 후 OK
+
+7) charcter set 확인 후 변경
+    1. character_set_database, collation_database 은 파라미터그룹으로 설정이 변경되지않는다. 따라서 alter문으로 변경
+    ```
+        use ASW RDS DB이름
+        show variables like 'c%';
+        alter database DB이름 
+        charcter set = 'utf8mb4'
+        collate = 'utf8mb4_general_ci';
+    ```
+8) time_zone 확인
+    ```
+        select @@time_zone, now();
+    ```
+9) test 테이블 만들어서 데이터 잘 들어가나 확인
+
+10) RDS 설정 끝!
+  
+ 
+    
         
     
 
