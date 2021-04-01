@@ -538,4 +538,16 @@ CustomOauth2UserService는 읽을 수 없기때문에 에러가 발생했다.
 3) git clone으로 프로젝트를 저장할 디렉토리 생성 `mkdir ~/app && mkdir ~/app/step1`
     - ~ : 현재 계정의 홈 디렉토리
 4) 생성된 디렉토리로 이동 `cd ~/app/step1`
-5) 깃 클론 진행 `git clone 레포지토리 web주소`
+5) 깃 클론 진행 `git clone 레포지토리 web주소` 
+6) 코드들이 잘 수행되는지 테스트로 검증 `./gradkew test`
+    - 권한이 없을 경우 수정 `chmod +x ./gradlew`
+7) 성공!
+```
+BUILD SUCCESSFUL in 3m 7s
+5 actionable tasks: 5 executed
+``` 
+8) 현재 EC2에는 그레이들을 설치하지않았다. 하지만 gradle Task를 수행할 수 있는 이유는 프로젝트 내부에 포함된 gradlew파일 때문이다.
+그레이들이 설치되지 않은 환경, 혹은 다른 상황에서도 해당 프로젝트에 한해서 그레이들을 쓸 수 있도록 지원하는 Wrapper파일이다. 
+해당 파일을 직접 이용하기때문에 별도로 설치 할 필요가 없다
+
+### 배포스크립트 만들기
