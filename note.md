@@ -620,7 +620,8 @@ nohup java -jar $REPOSITORY/$JAR_NAME 2>&1 &
     - 찾은 jar파일명으로 해당 jar파일은 nohub으로 실행한다
     - 스프링 부트의 장점으로 특별히 외장 톰캣을 설치할 필요가 없다
     - 내장 톰캣을 사용하여 jar 파일만 있으면 바로 웹 애플리케이션 서버를 실행할 수 있다
-    - 일반적으로 자바를 실행할때는 java -jar라는 명령어를 사용하지만, 이렇게하면 사용자가 터미널 접속을 끊을 때 애플리케이션도 같이 종료된다
+    - 일반적으로 자바를 실행할때는 java -jar라는 명령어를 사용하지만, 
+      이렇게하면 사용자가 터미널 접속을 끊을 때 애플리케이션도 같이 종료된다
     - 애플리케이션 실행자가 터미널을 종료해도 애플리케이션은 계속 구동될 수 있도록 nohub명령어를 사용한다
 ```
 2) 실행권한을 추가 `chmod +x ./deploy.sh`
@@ -632,8 +633,15 @@ nohup java -jar $REPOSITORY/$JAR_NAME 2>&1 &
 
 3) delploy.sh 실행 `./deploy.sh`
  새 애플리케이션 배포 후 nohub.out 파일이 생성되었다
- 
-4)
+    - 에러
+      <br> 오타를 고친후에도 nohub.out에서 application start 메세지를 보지 못했다...
+      <br> 프로젝트 jdk버전은 1.8로 설정했는데도 컴파일 제대로 못하는것같아서 일단 11버전 지우고 클래스패스도 다시잡음..
+      <br> class파일 변경된거 확인하고 push함
+      <br> ec2에서 pull 받으려고하니까 
+      `error: Your local changes to the following files would be overwritten by merge:` 에러뜸
+      <br> `git stash` 로 해결
+      <br> 다시 deploy.sh실행했더니 gradlew 권한없어서 `chmod +x ./gradlew`로 해결
+      <br> 시큐리티에러 뜸 ㅠㅠ
 
-
-
+### 외부 security 파일 등록하기
+      
