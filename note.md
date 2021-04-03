@@ -550,4 +550,90 @@ BUILD SUCCESSFUL in 3m 7s
 그레이들이 설치되지 않은 환경, 혹은 다른 상황에서도 해당 프로젝트에 한해서 그레이들을 쓸 수 있도록 지원하는 Wrapper파일이다. 
 해당 파일을 직접 이용하기때문에 별도로 설치 할 필요가 없다
 
+## 21/04/03
 ### 배포스크립트 만들기
+작성한 코드를 실제 서버에 반영하는 것을 배포라고한다.
+<br> 자동 배포가능한 쉘스크립트 작성 (쉘스크립트 : .sh 파일확장자를 가진 파일. 리눅스에서 기본적으로 사용할 수 있는 스크립트파일)
+1) 디렉토리에 deploy.sh를 작성한다 
+<br> `vim ~/app/step1/deploy.sh`
+
+```
+#!/bin/bash
+
+REPOSITORY=/home/ec2-user/app/step1
+PROJECT_NAME=springBooPrj
+    - 프로젝트 디렉토리 주소는 스크립트 내에서 자주 사용하는 값이기 때문이 이를 변수로 저장한다
+    - PROJECT_NAME도 동일하게 변수로 저장
+    - 쉘에서는 타입없이 선언하여 저장한다
+    - 쉘에서는 $변수명으로 변수를 사용할 수 있다
+
+cd $REPOSITORY/$PROJECT_NAME/
+    - 제일 처음 git clone 받았던 디렉토리로 이동
+
+echo "> Git pull"
+
+git pull
+    - 디렉토리 이동 후, master 브랜치의 최신 내용을 받는다
+
+echo "> 프로젝트 Build시작"
+
+./gradle build
+    - 프로젝트 내부의 gradlew로 build를 수행한다
+
+echo "> step1 디렉토리로 이동"
+
+cd $REPOSITORY
+
+echo "> Build 파일 복사"
+
+cp $REPOSITORY/$PROJECT_NAME/build/libs/*.jar $REPOSITORY/
+    - build의 결과물인 jar파일을 복사해 jar파일을 모아둔 위치로 복사한다
+
+echo "> 현재 구동중인 애플리케이션 pid 확인"
+
+CURRENT_PID=${pgrep -f ${PROJECT_NAME}.*.jar)
+    - 기존에 수행중이던 부트 애플리케이션을 종료한다
+    - pgrep은 process id만 추출하는 명령어이다
+    - -f 옵션은 프로세스 이름으로 찾는다
+
+echo "> 현재 구동중인 애플리케이션pid : $CURRENT_PID"
+
+if [ -z "CURRENT_pid"]; then
+        echo "> 현재 구동중인 애플리케이션이 없으므로 종료하지 않습니다."
+else
+        echo "> kill -15 $CURRENT_pid"
+        kill -15 $CURRENT_PID
+        sleep 5
+fi
+    - 현재 구동중인 프로세스가 있는지 없는지를 판단해서 기능을 수행한다
+    - process id 값을 보고 프로세스가 있으면 해당 프로세스를 종료한다
+
+echo "> 새애플리케이션 배포"
+
+JAR_NAME=$(ls -tr $REPOSITORY/ | grep jar | tail -n 1)
+    - 새로 실행할 jar 파일명을 찾는다
+    - 여러 jar 파일이 생기기때문에 tail-n 으로 가장 나중의 jar파일(최신파일)을 변수에 저장한다
+
+echo "> JAR NAEM : $JAR_NAME"
+
+nohup java -jar $REPOSITORY/$JAR_NAME 2>&1 &
+    - 찾은 jar파일명으로 해당 jar파일은 nohub으로 실행한다
+    - 스프링 부트의 장점으로 특별히 외장 톰캣을 설치할 필요가 없다
+    - 내장 톰캣을 사용하여 jar 파일만 있으면 바로 웹 애플리케이션 서버를 실행할 수 있다
+    - 일반적으로 자바를 실행할때는 java -jar라는 명령어를 사용하지만, 이렇게하면 사용자가 터미널 접속을 끊을 때 애플리케이션도 같이 종료된다
+    - 애플리케이션 실행자가 터미널을 종료해도 애플리케이션은 계속 구동될 수 있도록 nohub명령어를 사용한다
+```
+2) 실행권한을 추가 `chmod +x ./deploy.sh`
+```
+    -rw-rw-r-- 1 ec2-user ec2-user 872 Apr  2 12:09 deploy.sh
+    xr-rwwxr-x 1 ec2-user ec2-user 872 Apr  2 12:09 deploy.sh
+```
+이렇게 변경
+
+3) delploy.sh 실행 `./deploy.sh`
+ 새 애플리케이션 배포 후 nohub.out 파일이 생성되었다
+ 
+4)
+
+
+
