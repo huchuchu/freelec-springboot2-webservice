@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.huchuchu.book.web.dto.HelloResponseDtoTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-03T05:09:27" hostname="DESKTOP-ESCRG64" time="0.007">
+<testsuite name="com.huchuchu.book.web.dto.HelloResponseDtoTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-04-04T12:56:54" hostname="DESKTOP-ESCRG64" time="0.013">
   <properties/>
-  <testcase name="롬복_기능_테스트()" classname="com.huchuchu.book.web.dto.HelloResponseDtoTest" time="0.007"/>
+  <testcase name="롬복_기능_테스트()" classname="com.huchuchu.book.web.dto.HelloResponseDtoTest" time="0.013"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

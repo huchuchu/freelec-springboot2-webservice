@@ -673,3 +673,16 @@ nohub java -jar \
     <br> `ps -ef | grep 파일이름` 으로 다른 사용자가 사용하고있는지 확인한다
     <br> 사용자가 없다면 `vi -r 파일이름` 으로 스왑 파일로 복구한다
     <br> 작업을완료하고 완료하고 저장 후 스왑파일을 삭제한다
+
+### 스프링 부트 프로젝트로 RDS 접근하기
+1) 테이블 생성 
+<br> H2에서 자동 생성해주던 테이블들을 MariaDB에선 직접 쿼리를 이용해 생성한다
+    - JPA가 사용할 엔티티 테이블
+    - 스프링 세션이 사용될 테이블
+<br> 두가지를 생성한다
+<br> 엔티티 테이블은 테스트코드 돌려서 쿼리 가져오고, 스프링 세션 테이블은 schema-mysql.sql검색해서 가져오기(ctrl+Shift+N)    
+2) 프로젝트 설정
+    - MariaDB 드라이버를 build.gradle에 등록한다
+    - src/main/resources/application-real.properties 작성
+        + application-real.properties로 파일을 만들면 profile=real인 환경이 구성된다. 
+        실제 운영될 환경이기때문에 보안/로그상 이슈가 될 만한 설정들을 모두 제거하며 RDS환경 profile설정이 추가된다.
