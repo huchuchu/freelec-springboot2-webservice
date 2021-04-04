@@ -539,7 +539,7 @@ CustomOauth2UserService는 읽을 수 없기때문에 에러가 발생했다.
     - ~ : 현재 계정의 홈 디렉토리
 4) 생성된 디렉토리로 이동 `cd ~/app/step1`
 5) 깃 클론 진행 `git clone 레포지토리 web주소` 
-6) 코드들이 잘 수행되는지 테스트로 검증 `./gradkew test`
+6) 코드들이 잘 수행되는지 테스트로 검증 `./gradlew test`
     - 권한이 없을 경우 수정 `chmod +x ./gradlew`
 7) 성공!
 ```
@@ -629,7 +629,6 @@ nohup java -jar $REPOSITORY/$JAR_NAME 2>&1 &
     -rw-rw-r-- 1 ec2-user ec2-user 872 Apr  2 12:09 deploy.sh
     xr-rwwxr-x 1 ec2-user ec2-user 872 Apr  2 12:09 deploy.sh
 ```
-이렇게 변경
 
 3) delploy.sh 실행 `./deploy.sh`
  새 애플리케이션 배포 후 nohub.out 파일이 생성되었다
@@ -640,8 +639,37 @@ nohup java -jar $REPOSITORY/$JAR_NAME 2>&1 &
       <br> ec2에서 pull 받으려고하니까 
       `error: Your local changes to the following files would be overwritten by merge:` 에러뜸
       <br> `git stash` 로 해결
-      <br> 다시 deploy.sh실행했더니 gradlew 권한없어서 `chmod +x ./gradlew`로 해결
-      <br> 시큐리티에러 뜸 ㅠㅠ
 
 ### 외부 security 파일 등록하기
-      
+ClientRegistrationRepository를 생성하려면 clientId와 clientSecret가 필수이다. 
+<br>로컬에서는 application-oauth.properties가 있어서 문제없지만 git에는 없음(.gitignore 대상)
+<br>공개된곳에 clientId와 ClientSecret를 올릴 수 없으니 서버에서 직접 이 설정들을 가지고 있게 해주아야한다
+
+1) ~/app/application-oauth.properties 작성
+2) deploy.sh 수정
+as-is
+```
+nohup java -jar $REPOSITORY/$JAR_NAME 2>&1 &
+
+```
+to-be
+```
+nohub java -jar \
+        -Dspring.config.location=classpath:/application.properties,/home/ec2-user/app/application-oauth.properties \
+         $REPOSITORY\$JAR_NAME 2>&1 &
+            - 스프링 설정 파일 위치를 지정한다
+            - 기본 옵션들을 담고 있는 application.properties와 OAuth 설정을 담고있는 application-oauth.properties의 위치를 지정한다
+            - calsspath가 붙으면 jar안에있는 resources 디렉토리를 기준으로 경로가 생성된다
+            - application-oauth.properties은 절대경로를 사용한다. 외부에 파일이 있기때문이다
+
+```
+
++ 
+    중간에 잘못지워서 putty창 그냥 껐더니 E325: ATTENTION 에러가 발생했다
+    <br> 발생원인 : .swp 파일이 발견되었기때문
+    <br> 편집도중 비정상적인 종료등에 대비하기위해 파일을 임시저장하는것. 정상적인 방법으로 vi편집기를 종료하면 스왑파일은 자동 삭제되지만
+    네트워크 끊김이나 강제종료등의 이유로 끊기면 스왑파일은 삭제되지않고 남아있다
+    <br> 해결방법 : `ls -all` 로 스왑파일이 있는지 확인한다
+    <br> `ps -ef | grep 파일이름` 으로 다른 사용자가 사용하고있는지 확인한다
+    <br> 사용자가 없다면 `vi -r 파일이름` 으로 스왑 파일로 복구한다
+    <br> 작업을완료하고 완료하고 저장 후 스왑파일을 삭제한다
