@@ -682,7 +682,39 @@ nohub java -jar \
 <br> 두가지를 생성한다
 <br> 엔티티 테이블은 테스트코드 돌려서 쿼리 가져오고, 스프링 세션 테이블은 schema-mysql.sql검색해서 가져오기(ctrl+Shift+N)    
 2) 프로젝트 설정
+<br> 자바 프로젝트가 MariaDB에 접근하려면 데이터베이스 드라이버가 필요하다. MariaDB에서 사용 가능한 드라이버를 프로젝트에 추가한다
     - MariaDB 드라이버를 build.gradle에 등록한다
     - src/main/resources/application-real.properties 작성
         + application-real.properties로 파일을 만들면 profile=real인 환경이 구성된다. 
         실제 운영될 환경이기때문에 보안/로그상 이슈가 될 만한 설정들을 모두 제거하며 RDS환경 profile설정이 추가된다.
+3) EC2(리눅스서버)설정     
+<br> 데이터베이스의 접속 정보는 중요하게 보호해야 할 정보이기때문에 서버내부에서 관리해야한다
+    - ~/app/application-real-db.properties를 작성한다
+    ```        
+        spring.jpa.hibernate.ddl-auto=none
+            - JPA로 테이블이 자동생성도는 옵션을 none으로 지정
+            - RDS에는 실제 운영으로 사용될 테이블이니 절대 스프리우트에서 새로 만들지않도록 해야한다
+            - 이 옵션을 하지 않으면 자칫 테이블이 모두 새로 생성될 수 있다. 
+            - 주의해야하는 옵션이다
+   
+        spring.jpa.show_sql=false
+        
+        spring.datasource.hikari.jdbc-url=jdbc:mariadb://RDS주소:포트(기본은 3306)/database이름
+        spring.datasource.hikari.username=
+        spring.datasource.hikari.password=
+        spring.datasource.hikari.driver-class-name=org.mariadb.jdbc.Driver
+
+    ```
+    - deploy.sh가 real profile을 쓸 수 있도록 개선한다
+    ```
+        nohup java -jar \
+        -Dspring.config.location=classpath:/application.properties,/home/ec2-user/app/application-oauth.properties,
+        /home/ec2-user/app/application-real-db.properties,classpath:/application-real.properties \
+        -Dspring.profile.active=real \
+            - application-real.properties를 활성화시킨다
+            - application-real.properties의 spring.profile.include=oauth,real-db옵션때문에 
+              real-db역시 함께 활성화 대상에 포함된다 
+   
+        $REPOSITORY/$JAR_NAME 2>&1 &
+
+    ```   
