@@ -718,3 +718,20 @@ nohub java -jar \
         $REPOSITORY/$JAR_NAME 2>&1 &
 
     ```   
+    - deploy.sh 실행하기
+    - curl 명령어로 html코드가 정상적으로 보이면 성공 `curl localhost:8088`
+        + curl : 리눅스에서 curl이라는 http 메세지를 쉘상에서 요청하여 결과를 확인하는 명령어
+        <br> curl [옵션] [URL]
+    
+4) EC2에서 소셜로그인하기
+    1) AWS 보안그룹 변경
+        - EC2에 스프링부트 프로젝트가 8088포트로 배포되었으니 8088포트가 보안그룹에 열려있는지 확인한다
+    2) AWS EC2 도메인으로 접속
+        - 인스턴스에서 퍼블릭DNS를 확인한다. DNS:8088을 브라우저에 입력하면 접속할 수 있다!
+    3) 구글에 EC2 주소 등록
+        - Oauth동의화면/승인된 도메인에 DNS등록
+        - 리다이렉트URL 등록
+    4) 네이버에 EC2 주소 등록
+        - API설정 서비스URL에 DNS등록
+        - callbackURL등록
+    5) 로그인되는지 확인하기!
