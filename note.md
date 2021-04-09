@@ -735,3 +735,20 @@ nohub java -jar \
         - API설정 서비스URL에 DNS등록
         - callbackURL등록
     5) 로그인되는지 확인하기!
+    
+## 21/04/08
+### Travis CI 배포 자동화
+
+1) CI와 CD란? 
+    <br> 코드 버전관리를 하는 VCS시스템(Git, SVN등)에 PUS되면 자동으로 테스트와 빌드가 수행되어 안정적인 뱁포 파일을 만드는 과정을 CI
+    (Continuous Intergration : 지속적 통합), 이 빌드 결과를 자동으로 운영 서버에 무중단 배포까지 진행되는 과정을 
+    CD(Continuous Deployment : 지속적 배포)라고 한다.
+
+2) Travis CI 연동하기
+    <br> Travis CI : 깃허브에서 제공하는 CI도구
+    1. Travis CI 웹서비스 설정
+        - https://travis-ci.org/에서 깃헙 계정으로 로그인 후 setting->저장소를 활성화시킨다
+    2. 프로젝트 설정
+        - .travis.yml 작성
+        
+    
