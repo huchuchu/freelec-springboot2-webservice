@@ -782,6 +782,68 @@ nohub java -jar \
             - 버킷 이름을 지정할 때는 배포할 Zip파일들이 모여있는 장소임을 의미하도록 짓는편이 좋다
             - 퍼블릭 액세스 관리부분은 모든차단을 해야한다. 
         4. ./travis.yml에 코드추가
-            
+        ```
+           before_deploy:
+                - deploy 명령어가 실행되기 전에 수행된다
+                - CodeDeploy는 Jar 파일은 인식하지못하므로 Jar+ 기타 설정파일들을 모아 압축(zip)한다
+             - zip -r springBootPrj *
+                - 현재 위치의 모든 파일을 springBootPrj 으름으로 압축한다                
+             - mkdir -p deploy
+                - delploy라는 디렉토리를 TravisCI가 실행중인 위치에서 생성한다
+             - mv springBootPrj.zip deploy/springBootPrj.zip
+                - zip 파일이동
+           
+           deploy:
+                - S3로 파일 업로드 혹은 CodeDeploy로 배포 등의 외부 서비스와 연동될 행위를 선언한다
+             provider: s3
+             access_key_id: $AWS_ACCESS_KEY
+             secret_access_key: $AWS_SECRET_KEY
+             bucket: springbootprj-build 
+                - S3 버킷
+             region: ap-northeast-2
+             skip_cleanup: true
+             acl: private
+                - 파일접근을 private로
+             local_dir: deploy
+                - 앞에서 생성하나 deploy디렉토리를 지정한다
+                - 해당 위치의 파일들만 S3로 전송한다
+             wait-until-deployed: true
+        ```
+        5. S3 버킷에 가보면 업로드가 성공한것을 확인할 수 있다
+        
+4) Travis CO와 AWS S3, CodeDeploy 연동하기
+<br> AWS의 배포시스템인 CodeDeploy를 이용하기전에 배포 대상인 EC2가 CodeDeploy룰 연동받을 수 있게 IAM 역할을 하나 생성한다
+    
+    1. EC2에 IAM 역할 추가
+        - IAM의 사용자 역할과 차이점
+            - 역할 : AWS 서비스에만 할당할 수 있는 권한 / EC2, CodeDeploy, SQS등
+            - 사용자 : AWS 서비스 외에 사용할 수 있는 권한 / 로컬PC, IDC서버 등
+        - ec2인스턴스 / 우클릭 / 보안 / IAM수정에서 IAM역할 부분을 수정한 후 재부팅한다
+    
+    2. [CodeDeploy 에이전트 설치](https://docs.aws.amazon.com/ko_kr/codedeploy/latest/userguide/codedeploy-agent-operations-install-linux.html)
+    3. CodeDeploy를 위한 권한 생성
+    <br>CodeDeploy에서 EC2에 접근하려면 마찬가지로 권한이 필요하다. AWS서비스이니 IAM역할을 생성한다
+        - 역할을 생성해준다
+    4. CodeDeploy 생성
+        - code commit
+            - 깃허브와 같은 코드저장소 역할을 한다
+            - 프라이빗이 지원되는 강점이있지만, 현재 깃허브에서 무료로 프라이빗 지원을 하고있기때문에 거의 사용안됨
+        - Code Build
+            - Travis CI와 마찬가지로 빌드용 서비스
+            - 멀티 모듈을 배포해야 하는 경우 사용해볼만하지만, 규모가 있는 서비스에서는 대부분 젠킨스/팀시티등을 이용한다
+        - CodeDeploy
+            - AWS의 배포서비스
+            - CodeDeploy는 대체제가 없다
+            - 오토 스케일링 그룹 배포, 블루 그린 배포, 롤링 배포, EC2 단독 배포등 많은 기능을 지원한다
+        1. Codeploy에 들어가서 애플리케이션 생성을한다
+        2. 배포그룹을 생성한다
+        3. codeDeploy설정 끝
+    5. Travis CI, S3, CodeDeploy 연동
+        1. S3에서 넘겨줄 zip파일을 저장할 디렉토리생성
+            - Travis CI의 build가 끝나면 S3에 zip파일이 전송, 이 zip파일은 home/ec2-usr/app/step2/zip으로 복사되어 압축을 푼다
+            - Travis CI의 설정은 .travis.yml
+            - AWS CodeDeploy의 설정은 appspec.yml                       
+                            
+           
             
             
