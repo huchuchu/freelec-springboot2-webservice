@@ -747,8 +747,12 @@ nohub java -jar \
 2) Travis CI 연동하기
     <br> Travis CI : 깃허브에서 제공하는 CI도구
     1. Travis CI 웹서비스 설정
-        - https://travis-ci.org/에서 깃헙 계정으로 로그인 후 setting->저장소를 활성화시킨다
+        - https://travis-ci.com/에서 깃헙 계정으로 로그인 후 setting->저장소를 활성화시킨다
     2. 프로젝트 설정
         - .travis.yml 작성
     3. github에 푸시
+    ```
+        ./gradlew: Permission denied
+    ```
+    권한 에러떠서 빌드실패함. 
     
