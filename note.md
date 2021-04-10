@@ -750,5 +750,5 @@ nohub java -jar \
         - https://travis-ci.org/에서 깃헙 계정으로 로그인 후 setting->저장소를 활성화시킨다
     2. 프로젝트 설정
         - .travis.yml 작성
-        
+    3. github에 푸시
     
