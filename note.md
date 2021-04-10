@@ -755,4 +755,33 @@ nohub java -jar \
         ./gradlew: Permission denied
     ```
     권한 에러떠서 빌드실패함. 
-    
+    ```
+       before_install:
+         - chmod +x gradlew
+    ``` 
+    .travis.yml에 추가해줌
+
+3) travis CI와 AWS S3 연동하기
+    <br> S3 : AWS에서 제공하는 일종의 파일서버. 이미지 파일을 비롯한 정적 파일들을 관리하거나, 배포 파일들을 관리하는 등의 기능을 한다
+    1. Travis CI와 S3 연동
+        - 실제 배포는 AWS CodeDeploy라는 서비스를 이용한다. 하지만 S3연동이 먼저 필요한 이유는 Jar 파일을 전달하기 위해서
+        - CodeDeploy는 저장 기능이 없다. 그래서 Travis CI가 빌드한 결과물을 받아서 CodeDeploy가 
+          가져갈 수 있도록 보관할 수 있는 공간이 필요하다. 이때 AWS S3를 사용한다
+        1. AWS Key 발급
+            - AWS서비스에 외부서비스가 접근할 수 없기때문에, 접근 가능한 권한을 가진 Key를 생성해서 사용해야한다.
+              <br> 인증관련 기능을 제공하는 서비스로 IAM(Identity and Access Management)이 있다
+            - AWS에 IAM을 검색 / 사용자 탭 / 사용자를 추가하여 Key 발급
+        2. Tracis CI에 Key등록
+            - 프로젝트 setting / AWS_ACCESS_KEY, AWS_SECRET_KEY를 변수로 Key를 등록
+            - 이제 .travis.yml에서 $AWS_ACCESS_KEY, $AWS_SECRET_KEY 이름으로 사용할 수 있다
+        3. S3(Simple Storage Service) 버킷생성
+            - AWS의 S3는 일종의 파일서버이다. 순수하게 파일들을 저장하고 접근 권한을 관리, 검색 등을 지원하는 파일서버역할을 한다
+            - Travis CI에서 생성된 Build파일을 저장하도록 구성할것이다.
+            - S3에 저장된 Build파일은 이후 AWS의 CodeDeploy에서 배포할 파일로 가져가도록 구성할것이다.
+            - S3를 검색하여 버킷을 생성한다
+            - 버킷 이름을 지정할 때는 배포할 Zip파일들이 모여있는 장소임을 의미하도록 짓는편이 좋다
+            - 퍼블릭 액세스 관리부분은 모든차단을 해야한다. 
+        4. ./travis.yml에 코드추가
+            
+            
+            
