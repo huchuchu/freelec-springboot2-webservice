@@ -43,7 +43,7 @@ deploy:
    bundle_type: zip
    application: SpringBootPrj
    deployment_group: SpringBootPrj-group
-   local_dir: deploy
+   region: ap-northeast-2
    wait-until-deployed: true
 
 
