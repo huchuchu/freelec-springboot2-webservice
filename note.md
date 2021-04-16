@@ -843,6 +843,19 @@ nohub java -jar \
             - Travis CI의 build가 끝나면 S3에 zip파일이 전송, 이 zip파일은 home/ec2-usr/app/step2/zip으로 복사되어 압축을 푼다
             - Travis CI의 설정은 .travis.yml
             - AWS CodeDeploy의 설정은 appspec.yml                       
+    
+5) 배포 자동화 구성
+    
+    1. step2 환경에서 실행될 deploy.sh 생성
+        - script 디렉토리를 생성하여 여기에 스크립트를 생성한다
+    2. .travis.yml 파일수정
+        - 현재 프로젝트는 모든 파일을 zip파일로 만드는데 실제로 필요한 파일들은 Jar, appspec.yml, 배포를 위한 스크립트들이다
+          나머지는 배포에 필요하지않기때문에 포함x
+    3. appspec.yml 수정
+    
+        
+    
+    
                             
            
             
