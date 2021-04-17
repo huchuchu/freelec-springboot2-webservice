@@ -2,9 +2,13 @@ com/huchuchu/book/web/IndexControllerTest.java
  com.huchuchu.book.web.IndexControllerTest
 com/huchuchu/book/web/PostsApiControllerTest.java
  com.huchuchu.book.web.PostsApiControllerTest
-com/huchuchu/book/web/HelloControllerTest.java
- com.huchuchu.book.web.HelloControllerTest
-com/huchuchu/book/domain/posts/PostsRepositoryTest.java
- com.huchuchu.book.domain.posts.PostsRepositoryTest
 com/huchuchu/book/web/dto/HelloResponseDtoTest.java
  com.huchuchu.book.web.dto.HelloResponseDtoTest
+com/huchuchu/book/domain/posts/PostsRepositoryTest.java
+ com.huchuchu.book.domain.posts.PostsRepositoryTest
+com/huchuchu/book/web/ProfileControllerTest.java
+ com.huchuchu.book.web.ProfileControllerTest
+com/huchuchu/book/web/HelloControllerTest.java
+ com.huchuchu.book.web.HelloControllerTest
+com/huchuchu/book/web/ProfileControllerUnitTest.java
+ com.huchuchu.book.web.ProfileControllerUnitTest

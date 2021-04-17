@@ -36,8 +36,8 @@ com/huchuchu/book/config/auth/CustomOAuth2UserService.java
  com.huchuchu.book.config.auth.CustomOAuth2UserService
 com/huchuchu/book/domain/posts/PostsRepository.java
  com.huchuchu.book.domain.posts.PostsRepository
-com/huchuchu/book/config/auth/SecurityConfig.java
- com.huchuchu.book.config.auth.SecurityConfig
+com/huchuchu/book/web/ProfileController.java
+ com.huchuchu.book.web.ProfileController
 com/huchuchu/book/config/auth/LoginUserArgumentResolver.java
  com.huchuchu.book.config.auth.LoginUserArgumentResolver
 com/huchuchu/book/web/dto/PostsUpdateRequestDto.java
@@ -51,3 +51,5 @@ com/huchuchu/book/web/IndexController.java
  com.huchuchu.book.web.IndexController
 com/huchuchu/book/Applicaion.java
  com.huchuchu.book.Applicaion
+com/huchuchu/book/config/auth/SecurityConfig.java
+ com.huchuchu.book.config.auth.SecurityConfig
